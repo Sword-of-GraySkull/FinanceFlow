@@ -12,6 +12,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 // Database types
 export interface Account {
   id: string
+  user_id: string
   name: string
   type: string
   balance: number
@@ -21,6 +22,7 @@ export interface Account {
 
 export interface Transaction {
   id: string
+  user_id: string
   date: string
   description: string
   amount: number

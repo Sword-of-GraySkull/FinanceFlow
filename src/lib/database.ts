@@ -1,5 +1,12 @@
 import { supabase, Account, Transaction } from './supabase'
 
+// Helper to get current user ID
+async function getUserId(): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('User not authenticated')
+  return user.id
+}
+
 // Account operations
 export const accountService = {
   async getAll(): Promise<Account[]> {
@@ -12,10 +19,11 @@ export const accountService = {
     return data || []
   },
 
-  async create(account: Omit<Account, 'id' | 'created_at' | 'updated_at'>): Promise<Account> {
+  async create(account: Omit<Account, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<Account> {
+    const userId = await getUserId()
     const { data, error } = await supabase
       .from('accounts')
-      .insert([account])
+      .insert([{ ...account, user_id: userId }])
       .select()
       .single()
     
@@ -57,10 +65,11 @@ export const transactionService = {
     return data || []
   },
 
-  async create(transaction: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>): Promise<Transaction> {
+  async create(transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<Transaction> {
+    const userId = await getUserId()
     const { data, error } = await supabase
       .from('transactions')
-      .insert([transaction])
+      .insert([{ ...transaction, user_id: userId }])
       .select()
       .single()
     

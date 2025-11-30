@@ -10,7 +10,8 @@ import {
   ArrowDownRight,
   AlertCircle,
   CheckCircle,
-  PlusCircle
+  PlusCircle,
+  LogOut
 } from 'lucide-react';
 import { parseFile, FileParseResult } from './utils/fileParser';
 import Accounts from './Accounts/accounts';
@@ -19,8 +20,11 @@ import { formatINR } from './utils/currency';
 import { accountService, transactionService } from './lib/database';
 import { Account, Transaction } from './lib/supabase';
 import AssetDistributionChart from './components/AssetDistributionChart';
+import { useAuth } from './contexts/AuthContext';
+import Auth from './pages/Auth';
 
 function App() {
+  const { user, loading, signOut } = useAuth();
   // Accounts state - now using Supabase
   const [accounts, setAccounts] = useState<Account[]>([]);
   
@@ -75,6 +79,7 @@ function App() {
         setParseResult(result);
         setTransactions(result.transactions.map(t => ({
           ...t,
+          user_id: user?.id || '',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })));
@@ -282,6 +287,23 @@ function App() {
     }
   };
 
+  // Show loading state while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show auth page if not logged in
+  if (!user) {
+    return <Auth />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
@@ -294,7 +316,7 @@ function App() {
               </div>
               <h1 className="text-2xl font-bold text-gray-900">FinanceFlow</h1>
             </div>
-            <nav className="flex space-x-8">
+            <nav className="flex items-center space-x-8">
               <button
                 onClick={() => setActiveTab('upload')}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -334,6 +356,17 @@ function App() {
                 }`}
               >
                 Transactions
+              </button>
+              <div className="flex items-center px-3 py-2 text-sm font-medium text-gray-700">
+                {user?.email}
+              </div>
+              <button
+                onClick={signOut}
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
+                title="Sign out"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
               </button>
             </nav>
           </div>

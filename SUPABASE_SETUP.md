@@ -23,6 +23,7 @@
 
 ### Accounts Table
 - `id` (UUID, Primary Key)
+- `user_id` (UUID, Foreign Key)
 - `name` (Text)
 - `type` (Text)
 - `balance` (Decimal)
@@ -31,6 +32,7 @@
 
 ### Transactions Table
 - `id` (UUID, Primary Key)
+- `user_id` (UUID, Foreign Key)
 - `date` (Date)
 - `description` (Text)
 - `amount` (Decimal)
