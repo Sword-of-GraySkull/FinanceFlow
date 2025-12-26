@@ -8,7 +8,7 @@ interface RecordCreationProps {
   isOpen: boolean;
   onClose: (open: boolean) => void;
   accounts: Account[];
-  onSaveTransaction: (transaction: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>) => void;
+  onSaveTransaction: (transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
 }
 
 // Auto-categorization rules derived from provided mapping
@@ -110,6 +110,7 @@ export default function RecordCreation({ isOpen, onClose, accounts, onSaveTransa
   const [name, setName] = useState<string>('');
   const [categoryManuallyChosen, setCategoryManuallyChosen] = useState<boolean>(false);
   const [parentCategory, setParentCategory] = useState<string>('');
+  const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
   const expenseCategories = Array.from(new Set(AUTO_CATEGORIZATION_RULES.map(r => r.category))).sort();
   const availableCategories = activeTab === 'expense' ? expenseCategories : activeTab === 'income' ? INCOME_CATEGORIES : [];
@@ -188,6 +189,14 @@ export default function RecordCreation({ isOpen, onClose, accounts, onSaveTransa
                         }}
                       />
                       <div className="ml-3 text-xl opacity-90">INR</div>
+                    </div>
+                    <div className="mt-4 flex justify-center">
+                      <input
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="bg-transparent text-gray-500 text-sm font-medium focus:outline-none border-b border-gray-200 pb-1"
+                      />
                     </div>
                   </div>
 
@@ -368,8 +377,9 @@ export default function RecordCreation({ isOpen, onClose, accounts, onSaveTransa
                           return;
                         }
                         
-                        const transaction: Omit<Transaction, 'id' | 'created_at' | 'updated_at'> = {
-                          date: new Date().toISOString().split('T')[0],
+                        
+                        const transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at'> = {
+                          date: date,
                           description: name || 'Untitled',
                           amount: transactionType === 'expense' ? -transactionAmount : transactionAmount,
                           category: activeTab === 'transfer' ? 'Transfer' : (category || 'Uncategorized'),

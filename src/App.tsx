@@ -42,11 +42,16 @@ function App() {
   const [txFilter, setTxFilter] = useState<'all' | 'income' | 'expense' | 'transfer'>('all');
   const [txSearch, setTxSearch] = useState('');
 
-  // Load accounts and transactions on component mount
+  // Load accounts and transactions when user changes
   useEffect(() => {
-    loadAccounts();
-    loadTransactions();
-  }, []);
+    if (user) {
+      loadAccounts();
+      loadTransactions();
+    } else {
+      setAccounts([]);
+      setRecordedTransactions([]);
+    }
+  }, [user]);
 
   const loadAccounts = async () => {
     try {
@@ -252,7 +257,7 @@ function App() {
     }
   };
 
-  const saveTransaction = async (transaction: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>) => {
+  const saveTransaction = async (transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     try {
       // Adjust account balances
       if (transaction.type === 'income' && transaction.account) {

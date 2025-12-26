@@ -10,9 +10,11 @@ async function getUserId(): Promise<string> {
 // Account operations
 export const accountService = {
   async getAll(): Promise<Account[]> {
+    const userId = await getUserId()
     const { data, error } = await supabase
       .from('accounts')
       .select('*')
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
     
     if (error) throw error
@@ -56,9 +58,11 @@ export const accountService = {
 // Transaction operations
 export const transactionService = {
   async getAll(): Promise<Transaction[]> {
+    const userId = await getUserId()
     const { data, error } = await supabase
       .from('transactions')
       .select('*')
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
     
     if (error) throw error
